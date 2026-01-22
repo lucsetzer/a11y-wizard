@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --critical: #ef4444;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --info: #3b82f6;
+        }
+        
+        .score-card {
+            background: linear-gradient(135deg, 
+                {% if results.score >= 90 %}var(--success){% elif results.score >= 70 %}var(--warning){% else %}var(--critical){% endif %}, 
+                rgba(0,0,0,0.2));
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .issue-card {
+            border-left: 4px solid;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .issue-critical { border-color: var(--critical); background: rgba(239, 68, 68, 0.1); }
+        .issue-warning { border-color: var(--warning); background: rgba(245, 158, 11, 0.1); }
+        .issue-info { border-color: var(--info); background: rgba(59, 130, 246, 0.1); }
+        
+        .ai-insights {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        
+        .document-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-card {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <nav>
+            <ul>
+                <li><strong>A11y Wizard</strong></li>
+            </ul>
+            <ul>
+                <li><a href="/" role="button">New Analysis</a></li>
+            </ul>
+        </nav>
+        
+        <article>
+            <!-- Score Card -->
+            <div class="score-card">
+                <h2>
+                    {% if results.score >= 90 %}🏆{% elif results.score >= 70 %}⚠️{% else %}🔧{% endif %}
+                    Document Accessibility Score
+                </h2>
+                <div style="font-size: 4rem; font-weight: bold; margin: 1rem 0;">
+                    {{ results.score }}/100
+                </div>
+                <p style="font-size: 1.2rem; opacity: 0.9;">
+                    {{ results.summary }}
+                </p>
+            </div>
+            
+            <!-- Document Information -->
+            {% if results.document_info %}
+            <h3>📄 Document Information</h3>
+            <div class="document-info">
+                {% for key, value in results.document_info.items() %}
+                <div class="info-card">
+                    <div style="font-size: 0.9em; opacity: 0.7; text-transform: capitalize;">
+                        {{ key.replace('_', ' ') }}
+                    </div>
+                    <div style="font-weight: bold; font-size: 1.1em;">
+                        {{ value }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- AI Insights -->
+            {% if results.ai_available and results.ai_analysis %}
+            <div class="ai-insights">
+                <h3>A11y Insights</h3>
+                <p><strong>{{ results.ai_analysis.summary or "Analysis complete" }}</strong></p>
+                
+                {% if results.ai_analysis.priority_issues %}
+                <h4>Priority Issues:</h4>
+                <ul>
+                    {% for issue in results.ai_analysis.priority_issues %}
+                    <li><strong>{{ issue.title }}</strong>: {{ issue.reason or "See details" }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                
+                {% if results.ai_analysis.next_steps %}
+                <h4>Next Steps:</h4>
+                <ul>
+                    {% for step in results.ai_analysis.next_steps %}
+                    <li>{{ step }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                
+                {% if results.ai_analysis.estimated_effort %}
+                <p><strong>Estimated Effort:</strong> {{ results.ai_analysis.estimated_effort }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Issues List -->
+            <h3>🔍 Issues Found ({{ results.issues|length }})</h3>
+            
+            {% if results.issues %}
+                {% for issue in results.issues %}
+                <div class="issue-card issue-{{ issue.type }}">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <div>
+                            <h4 style="margin: 0;">{{ issue.title }}</h4>
+                            <small style="opacity: 0.8;">
+                                {{ issue.category }} • {{ issue.count }} occurrence(s)
+                            </small>
+                        </div>
+                        <span style="
+                            background: rgba(0,0,0,0.2);
+                            padding: 0.25rem 0.75rem;
+                            border-radius: 20px;
+                            font-size: 0.9em;
+                            text-transform: uppercase;
+                        ">
+                            {{ issue.type }}
+                        </span>
+                    </div>
+                    
+                    <p>{{ issue.description }}</p>
+                    
+                    <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 6px; margin-top: 1rem;">
+                        <strong>🛠️ How to Fix:</strong>
+                        <p style="margin: 0.5rem 0 0 0;">{{ issue.fix }}</p>
+                        {% if issue.example %}
+                        <small style="opacity: 0.8;">Example: {{ issue.example }}</small>
+                        {% endif %}
+
+                        <!-- In your results.html template, inside the issue loop -->
+{% if issue.nodes %}
+<div style="margin-top: 1rem; background: rgba(0,0,0,0.1); padding: 1rem; border-radius: 6px;">
+    <strong>📍 Example elements ({{ issue.nodes|length }}):</strong>
+    {% for node in issue.nodes %}
+    <div style="margin-top: 0.5rem; font-family: monospace; font-size: 0.9em;">
+        {% if node.html %}
+        <code style="background: rgba(255,255,255,0.1); padding: 0.25rem 0.5rem; border-radius: 4px; display: block; overflow-x: auto; white-space: pre-wrap;">
+            {{ node.html|truncate(200) }}
+        </code>
+        {% endif %}
+        {% if node.target %}
+        <small style="opacity: 0.7;">Selector: {{ node.target[0] }}</small>
+        {% endif %}
+        {% if node.failureSummary %}
+        <div style="margin-top: 0.25rem; color: #ff6b6b; font-size: 0.85em;">
+            {{ node.failureSummary|truncate(150) }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>✅ No accessibility issues found!</p>
+            {% endif %}
+            
+            <!-- Actions -->
+            <div style="margin-top: 3rem; display: flex; gap: 1rem;">
+                <a href="/" role="button" class="secondary">🔄 New Analysis</a>
+                {% if results.ai_available %}
+                <button onclick="window.print()" class="outline">🖨️ Print Report</button>
+                {% endif %}
+            </div>
+            <!-- In results.html, add this button -->
+            <button id="copy-btn" style="display: inline-block;" onclick="copyResults()">
+                📋 Copy Results
+            </button>
+
+            <details style="background: #f0f0f0; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+    <summary>Debug: AI Data Structure</summary>
+    <pre>{{ results.ai_analysis|tojson(indent=2) }}</pre>
+</details>
+
+        </article>
+    </main>
+</body>
+</html>
