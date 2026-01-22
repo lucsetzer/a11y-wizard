@@ -1,0 +1,75 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block title %}Welcome to A11y Wizard{% endblock %}
+
+{% block content %}
+<div class="nav-bar">
+    <div class="logo">🧙‍♂️ A11y Wizard</div>
+    <a href="/analyze" role="button" class="outline">Skip to App →</a>
+</div>
+
+<header>
+    <h1>Welcome to A11y Wizard</h1>
+    <p>Your AI-powered accessibility assistant. Follow these simple steps to get started:</p>
+</header>
+
+<section id="instruction-cards">
+    <!-- Card 1 -->
+    <div class="instruction-card" onclick="window.location.href='/analyze'">
+        <div class="card-icon">🔍</div>
+        <h3><span class="step-number">1</span> Choose Your Content</h3>
+        <p>Enter a website URL or upload a document (PDF, Word). We'll analyze it for accessibility issues.</p>
+    </div>
+    
+    <!-- Card 2 -->
+    <div class="instruction-card" onclick="window.location.href='/analyze'">
+        <div class="card-icon">⚡</div>
+        <h3><span class="step-number">2</span> Automatic Analysis</h3>
+        <p>Our system scans for common accessibility issues: alt tags, headers, contrast, structure, and more.</p>
+    </div>
+    
+    <!-- Card 3 -->
+    <div class="instruction-card" onclick="window.location.href='/analyze'">
+        <div class="card-icon">🤖</div>
+        <h3><span class="step-number">3</span> AI-Powered Insights</h3>
+        <p>DeepSeek AI expands on findings with clear explanations and actionable fix suggestions.</p>
+    </div>
+    
+    <!-- Card 4 -->
+    <div class="instruction-card" onclick="window.location.href='/analyze'">
+        <div class="card-icon">📋</div>
+        <h3><span class="step-number">4</span> Copy & Implement</h3>
+        <p>Copy the results with one click and share with your team or implement fixes directly.</p>
+    </div>
+</section>
+
+<div style="text-align: center; margin-top: 3rem;">
+    <a href="/analyze" role="button" class="primary" style="font-size: 1.2rem; padding: 1rem 2rem;">
+        🚀 Start Analyzing Now
+    </a>
+    <p style="margin-top: 1rem; opacity: 0.8;"><small>Click any card above or this button to begin</small></p>
+</div>
+
+<hr>
+
+<section style="margin-top: 3rem;">
+    <h2>Why Accessibility Matters</h2>
+    <p>A11y Wizard helps you create inclusive digital experiences. Whether you're a developer, designer, or content creator, we make accessibility testing simple and actionable.</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 2rem;">
+        <article style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px;">
+            <h4>🎯 For Developers</h4>
+            <p>Get specific code fixes and implementation guidance.</p>
+        </article>
+        <article style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px;">
+            <h4>🎨 For Designers</h4>
+            <p>Check color contrast, spacing, and visual hierarchy.</p>
+        </article>
+        <article style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px;">
+            <h4>📝 For Content Creators</h4>
+            <p>Ensure readable content and proper document structure.</p>
+        </article>
+    </div>
+</section>
+{% endblock %}
