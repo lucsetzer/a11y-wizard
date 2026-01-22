@@ -1,0 +1,655 @@
+<!-- templates/analyze.html -->
+{% extends "base.html" %}
+
+{% block title %}Analyze - A11y Wizard{% endblock %}
+
+{% block content %}
+<div class="nav-bar">
+    <a href="/" role="button" class="outline">← Back to Instructions</a>
+    <div class="logo">🧙‍♂️ A11y Wizard</div>
+</div>
+
+<header>
+    <h1>Accessibility Analysis</h1>
+    <p>Enter a URL or upload a document to check for accessibility issues.</p>
+</header>
+
+<!-- Tab navigation -->
+<nav style="margin-bottom: 2rem;">
+    <ul>
+        <li><a href="#url-section" role="button" class="outline" onclick="showSection('url')">🌐 Analyze URL</a></li>
+        <li><a href="#pdf-section" role="button" class="outline" onclick="showSection('pdf')">📄 Analyze PDF</a></li>
+        <li><a href="#results-section" role="button" class="outline" onclick="showSection('results')" id="results-tab" style="display: none;">📊 View Results</a></li>
+    </ul>
+</nav>
+
+<!-- URL Analysis Section -->
+<section id="url-section" class="analysis-section">
+    <article style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 12px;">
+        <h2>🌐 Analyze a Live Website</h2>
+        <p>Enter a URL to analyze its accessibility. We'll check for common issues like missing alt text, improper headings, color contrast, and more.</p>
+        
+        <form id="url-form">
+            <div class="grid">
+                <label for="url">
+                    Website URL
+                    <input type="url" id="url" name="url" placeholder="https://example.com" required>
+                    <small>Enter a full URL including https://</small>
+                </label>
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <button type="submit" id="analyze-url-btn" class="primary">
+                    🚀 Analyze Website
+                </button>
+                <button type="button" class="secondary" onclick="document.getElementById('url').value = ''">
+                    Clear
+                </button>
+            </div>
+        </form>
+        
+        <div id="url-loading" style="display: none; margin-top: 1.5rem;">
+            <article style="
+                background: linear-gradient(135deg, rgba(12, 192, 223, 0.15), rgba(0, 151, 178, 0.15));
+                border-left: 4px solid var(--primary);
+                padding: 1.5rem;
+                border-radius: 12px;
+            ">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <div style="font-size: 2rem;">🔍</div>
+                    <div>
+                        <h5 style="margin: 0;">Analyzing Accessibility...</h5>
+                        <p style="margin: 0.25rem 0 0 0; opacity: 0.8; font-size: 0.9em;">
+                            This may take 10-20 seconds. We're:
+                        </p>
+                    </div>
+                </div>
+                
+                <ul style="margin: 0 0 1rem 0; padding-left: 1.5rem; opacity: 0.9;">
+                    <li>Launching browser</li>
+                    <li>Loading page</li>
+                    <li>Running 50+ accessibility checks</li>
+                    <li>Calculating score</li>
+                </ul>
+                
+                <progress id="analysis-progress" value="0" max="100"></progress>
+                <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.9em;">
+                    <span>Starting...</span>
+                    <span id="progress-text">0%</span>
+                </div>
+            </article>
+        </div>
+    </article>
+</section>
+
+<!-- PDF Analysis Section -->
+<section id="pdf-section" class="analysis-section" style="display: none;">
+    <article style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 12px;">
+        <h2>📄 Analyze a Document</h2>
+        <p>Upload a PDF or Word document to check its accessibility. We'll analyze text structure, headings, alt text for images, and more.</p>
+        
+                <form id="pdf-form" action="/analyze/pdf" method="post" enctype="multipart/form-data" accept-charset="UTF-8">
+            <div class="grid">
+                <label for="pdf_file">
+                    Document File
+                    <input type="file" id="pdf_file" name="pdf_file" accept=".pdf,.doc,.docx,.txt" required>
+                    <small>Supported formats: PDF, Word (.doc, .docx), Text (.txt)</small>
+                </label>
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <button type="submit" id="analyze-pdf-btn" class="primary">
+                    📤 Upload & Analyze
+                </button>
+                <button type="button" class="secondary" onclick="document.getElementById('pdf_file').value = ''">
+                    Clear
+                </button>
+            </div>
+        </form>
+        
+        <hr>
+
+
+
+        <div id="pdf-loading" style="display: none; margin-top: 1.5rem;">
+            <article style="background: rgba(12, 192, 223, 0.1); border-left: 4px solid var(--primary); padding: 1.5rem; border-radius: 12px;">
+                <p>📄 Processing document... This may take a moment.</p>
+                <progress></progress>
+            </article>
+        </div>
+    </article>
+</section>
+
+<!-- Results Section -->
+<section id="results-section" class="analysis-section" style="display: none;">
+    <article style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 12px;">
+        <h2>📊 Analysis Results</h2>
+        <p>Here are the accessibility issues we found:</p>
+        
+        <div id="results-container">
+            <!-- Results will be dynamically inserted here -->
+            <p>No results yet. Analyze a URL or document first.</p>
+        </div>
+        
+        <div style="margin-top: 2rem;">
+            <button onclick="copyResults()" class="primary" id="copy-btn" style="display: none;">
+                📋 Copy Results to Clipboard
+            </button>
+            
+            <button onclick="window.location.href='/analyze'" class="outline">
+                🔄 New Analysis
+            </button>
+        </div>
+    </article>
+</section>
+
+<style>
+/* Additional CSS for analyze page */
+.analysis-section {
+    transition: all 0.3s ease;
+}
+
+.issue-card {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 6px solid;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.issue-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.issue-card h5 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.issue-card p {
+    margin: 0.75rem 0;
+    line-height: 1.6;
+}
+
+/* Make code blocks more readable */
+code {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Better focus states for auDHD */
+button:focus, 
+input:focus, 
+a:focus {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Progress bar styling */
+progress {
+    width: 100%;
+    height: 12px;
+    border-radius: 6px;
+    border: none;
+}
+
+progress::-webkit-progress-bar {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+}
+
+progress::-webkit-progress-value {
+    background-color: var(--primary);
+    border-radius: 6px;
+    transition: width 0.5s ease;
+}
+</style>
+
+<script>
+console.log("✅ A11y Wizard JavaScript loading...");
+
+// Helper functions
+function getScoreEmoji(score) {
+    if (score >= 95) return '🏆';
+    if (score >= 90) return '🎯';
+    if (score >= 80) return '✅';
+    if (score >= 70) return '⚠️';
+    if (score >= 60) return '🔧';
+    return '🚨';
+}
+
+function getScoreGrade(score) {
+    if (score >= 95) return 'A+ Excellent';
+    if (score >= 90) return 'A Great';
+    if (score >= 80) return 'B Good';
+    if (score >= 70) return 'C Fair';
+    if (score >= 60) return 'D Needs Work';
+    return 'F Poor';
+}
+
+function getScoreColor(score) {
+    if (score >= 90) return '#00c853';
+    if (score >= 80) return '#8bc34a';
+    if (score >= 70) return '#ffc107';
+    if (score >= 60) return '#ff9800';
+    return '#ff6b6b';
+}
+
+function getIssueStyle(type) {
+    const styles = {
+        'critical': { border: '#ff6b6b', bg: 'rgba(255, 107, 107, 0.1)', emoji: '❌' },
+        'warning': { border: '#ffc107', bg: 'rgba(255, 193, 7, 0.1)', emoji: '⚠️' },
+        'info': { border: 'var(--primary)', bg: 'rgba(12, 192, 223, 0.1)', emoji: 'ℹ️' }
+    };
+    return styles[type] || styles.info;
+}
+
+function truncateHtml(html, maxLength = 200) {
+    if (!html) return '';
+    if (html.length <= maxLength) return html;
+    return html.substring(0, maxLength) + '...';
+}
+
+// Tab navigation
+function showSection(section) {
+    document.querySelectorAll('.analysis-section').forEach(el => {
+        el.style.display = 'none';
+    });
+    document.getElementById(section + '-section').style.display = 'block';
+}
+
+// Display results function
+function displayResults(data) {
+    console.log("📊 Displaying results:", data);
+    const container = document.getElementById('results-container');
+    
+    if (data.error) {
+        container.innerHTML = `
+            <article style="background: rgba(255, 100, 100, 0.1); border-left: 4px solid #ff6b6b; padding: 1rem; border-radius: 8px;">
+                <h5>❌ Error</h5>
+                <p>${data.error}</p>
+            </article>
+        `;
+        return;
+    }
+    
+    // Build results HTML
+    let html = `
+        <div class="results-summary" style="margin-bottom: 2rem;">
+            <h3>📈 Accessibility Score: <span style="color: ${getScoreColor(data.score)}">${data.score}/100</span></h3>
+            <p><strong>Analyzed:</strong> ${data.url || data.filename || 'Unknown'}</p>
+            <p><strong>Method:</strong> ${data.method || 'axe-core'}</p>
+            <p><em>${data.summary || 'Analysis completed'}</em></p>
+        </div>
+    `;
+    
+    if (data.issues && data.issues.length > 0) {
+        html += `<div class="issues-list"><h4>🔍 Issues Found:</h4>`;
+        
+        data.issues.forEach((issue, index) => {
+            const style = getIssueStyle(issue.type);
+            
+            html += `
+                <div class="issue-card" style="
+                    background: ${style.bg};
+                    border-left: 4px solid ${style.border};
+                    padding: 1rem;
+                    margin: 1rem 0;
+                    border-radius: 8px;
+                ">
+                    <h5 style="color: ${style.border}; margin-top: 0;">
+                        ${style.emoji} ${issue.title || 'Accessibility Issue'} 
+                        ${issue.count > 1 ? `<span style="font-size: 0.9em; opacity: 0.8;">(${issue.count} instances)</span>` : ''}
+                    </h5>
+                    
+                    ${issue.description ? `<p><strong>Description:</strong> ${issue.description}</p>` : ''}
+                    ${issue.help ? `<p><strong>Help:</strong> ${issue.help}</p>` : ''}
+                    ${issue.fix ? `<p><strong>Fix:</strong> ${issue.fix}</p>` : ''}
+                    
+                    ${issue.example ? `<p><strong>Example:</strong> <code style="background: rgba(255,255,255,0.1); padding: 2px 5px; border-radius: 3px; display: inline-block; margin-top: 0.5rem;">${truncateHtml(issue.example)}</code></p>` : ''}
+                    
+                    ${issue.helpUrl ? `<p style="margin-top: 0.5rem;"><a href="${issue.helpUrl}" target="_blank" style="color: var(--primary);">📚 Learn more about this issue →</a></p>` : ''}
+                    
+                    ${issue.impact ? `<small style="opacity: 0.7; display: block; margin-top: 0.5rem;"><strong>Impact:</strong> ${issue.impact} | <strong>Category:</strong> ${issue.category || 'General'}</small>` : ''}
+                </div>
+            `;
+        });
+        
+        html += `</div>`;
+    } else {
+        html += `
+            <article style="background: rgba(0, 200, 83, 0.1); border-left: 4px solid #00c853; padding: 1.5rem; border-radius: 8px;">
+                <h5 style="color: #00c853;">✅ Excellent!</h5>
+                <p>No accessibility issues found! This page is well-structured for accessibility.</p>
+                <p><small>Keep up the good work! Remember to test with screen readers too.</small></p>
+            </article>
+        `;
+    }
+    
+    container.innerHTML = html;
+    
+    if (data.ai_analysis && data.ai_available !== false) {
+    const aiData = data.ai_analysis;
+    
+    html += `
+        <div class="ai-section" style="
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--primary);
+        ">
+            <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.5rem;">🤖</span> AI-Powered Insights
+            </h3>
+            
+            ${aiData.summary ? `
+                <div style="
+                    background: rgba(12, 192, 223, 0.1);
+                    padding: 1.5rem;
+                    border-radius: 12px;
+                    margin: 1rem 0;
+                    border-left: 4px solid var(--primary);
+                ">
+                    <h4 style="margin-top: 0; color: var(--primary);">📋 A11y Summary</h4>
+                    <p>${aiData.summary}</p>
+                </div>
+            ` : ''}
+            
+            ${aiData.priority_issues && aiData.priority_issues.length > 0 ? `
+                <h4>🎯 Priority Fixes </h4>
+                ${aiData.priority_issues.map((issue, idx) => `
+                    <div class="ai-issue-card" style="
+                        background: rgba(255, 193, 7, 0.1);
+                        padding: 1.5rem;
+                        border-radius: 12px;
+                        margin: 1rem 0;
+                        border-left: 4px solid #ffc107;
+                    ">
+                        <h5 style="margin-top: 0; color: #ffc107;">
+                            ${idx + 1}. ${issue.title || 'Priority Issue'}
+                        </h5>
+                        
+                        ${issue.reason ? `<p><strong>Why prioritize:</strong> ${issue.reason}</p>` : ''}
+                        ${issue.impact ? `<p><strong>User impact:</strong> ${issue.impact}</p>` : ''}
+                        
+                        ${issue.detailed_fixes && issue.detailed_fixes.length > 0 ? `
+                            <div style="margin: 1rem 0;">
+                                <strong>🔧 Detailed fixes:</strong>
+                                <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                                    ${issue.detailed_fixes.map(fix => `<li>${fix}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                        
+                        ${issue.code_examples && issue.code_examples.length > 0 ? `
+                            <div style="margin: 1rem 0;">
+                                <strong>💡 Code examples:</strong>
+                                ${issue.code_examples.map(code => `
+                                    <pre style="
+                                        background: rgba(0, 0, 0, 0.3);
+                                        padding: 1rem;
+                                        border-radius: 8px;
+                                        overflow-x: auto;
+                                        margin: 0.5rem 0;
+                                        font-family: 'Monaco', monospace;
+                                        font-size: 0.9em;
+                                    ">${escapeHtml(code)}</pre>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        ${issue.wcag_references && issue.wcag_references.length > 0 ? `
+                            <div style="
+                                background: rgba(255, 255, 255, 0.05);
+                                padding: 1rem;
+                                border-radius: 8px;
+                                margin-top: 1rem;
+                            ">
+                                <strong>📚 WCAG References:</strong>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                                    ${issue.wcag_references.map(ref => `
+                                        <span style="
+                                            background: rgba(12, 192, 223, 0.2);
+                                            padding: 0.25rem 0.75rem;
+                                            border-radius: 20px;
+                                            font-size: 0.9em;
+                                        ">${ref}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')}
+            ` : ''}
+            
+            ${aiData.next_steps && aiData.next_steps.length > 0 ? `
+                <div style="
+                    background: rgba(0, 200, 83, 0.1);
+                    padding: 1.5rem;
+                    border-radius: 12px;
+                    margin: 1.5rem 0;
+                ">
+                    <h4 style="margin-top: 0; color: #00c853;">🚀 Recommended Next Steps</h4>
+                    <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                        ${aiData.next_steps.map(step => `<li>${step}</li>`).join('')}
+                    </ul>
+                    ${aiData.estimated_effort ? `
+                        <p style="margin: 0.5rem 0 0 0;">
+                            <strong>Estimated effort:</strong> ${aiData.estimated_effort}
+                        </p>
+                    ` : ''}
+                </div>
+            ` : ''}
+            
+            <div style="
+                background: rgba(255, 255, 255, 0.05);
+                padding: 1rem;
+                border-radius: 8px;
+                margin-top: 1rem;
+                font-size: 0.9em;
+                opacity: 0.8;
+            ">
+                <p style="margin: 0;">
+                    <strong>🤖 Powered by DeepSeek AI</strong> - These insights are AI-generated 
+                    suggestions based on your accessibility results. Always verify with actual 
+                    user testing when possible.
+                </p>
+            </div>
+        </div>
+    `;
+}
+
+// Add helper function to escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+    // FIND this line in your JavaScript (around line ~250):
+document.getElementById('copy-btn').style.display = 'inline-block';
+
+    // REPLACE it with:
+    const copyBtn = document.getElementById('copy-btn');
+    if (copyBtn) {
+        copyBtn.style.display = 'inline-block';
+    }
+
+    // Show action buttons
+    document.getElementById('copy-btn').style.display = 'inline-block';
+    
+    
+    // Show results section
+    const resultsTab = document.getElementById('results-tab');
+        if (resultsTab) {
+            resultsTab.style.display = 'inline-block';
+        }
+            showSection('results');
+        }
+
+// Progress bar animation
+function startProgressAnimation() {
+    console.log("🔄 Starting progress animation");
+    const progressBar = document.getElementById('analysis-progress');
+    const progressText = document.getElementById('progress-text');
+    let progress = 0;
+    
+    const interval = setInterval(() => {
+        if (progress < 90) {
+            progress += 2;
+            progressBar.value = progress;
+            progressText.textContent = `${progress}%`;
+            
+            // Update status text
+            const statuses = [
+                "Launching browser...",
+                "Loading webpage...", 
+                "Analyzing HTML...",
+                "Checking color contrast...",
+                "Testing keyboard navigation...",
+                "Verifying screen reader compatibility...",
+                "Finalizing results..."
+            ];
+            
+            const statusIndex = Math.floor(progress / (100 / statuses.length));
+            if (statusIndex < statuses.length) {
+                progressText.textContent = `${progress}% - ${statuses[statusIndex]}`;
+            }
+        }
+    }, 200);
+    
+    return interval;
+}
+
+// FORM HANDLER 1: URL analysis
+document.getElementById('url-form').addEventListener('submit', async function(e) {
+    console.log("✅ URL form submitted");
+    e.preventDefault();
+    
+    const url = document.getElementById('url').value.trim();
+    if (!url) {
+        alert('Please enter a URL');
+        return;
+    }
+    
+    const loadingEl = document.getElementById('url-loading');
+    const button = document.getElementById('analyze-url-btn');
+    
+    // Show loading with animation
+    loadingEl.style.display = 'block';
+    button.disabled = true;
+    button.innerHTML = '⏳ Analyzing...';
+    
+    // Start progress animation
+    const progressInterval = startProgressAnimation();
+    
+    try {
+        console.log(`🔍 Analyzing: ${url}`);
+        const response = await fetch('/analyze/url', {
+            method: 'POST',
+            body: new URLSearchParams({ 'url': url }),
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+        
+        // Clear progress animation
+        clearInterval(progressInterval);
+        
+        // Complete progress bar
+        document.getElementById('analysis-progress').value = 100;
+        document.getElementById('progress-text').textContent = '100% - Complete!';
+        
+        const data = await response.json();
+        console.log("📊 Response:", data);
+        
+        if (!response.ok) {
+            throw new Error(data.error || `HTTP ${response.status}`);
+        }
+        
+        // Small delay to show 100%
+        setTimeout(() => displayResults(data), 500);
+        
+    } catch (error) {
+        console.error('❌ Error:', error);
+        clearInterval(progressInterval);
+        alert(`Analysis failed: ${error.message}`);
+    } finally {
+        // Hide loading
+        setTimeout(() => {
+            loadingEl.style.display = 'none';
+            button.disabled = false;
+            button.innerHTML = '🚀 Analyze Website';
+        }, 1000);
+    }
+});
+
+// FORM HANDLER 2: PDF analysis (placeholder)
+document.getElementById('pdf-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('pdf_file');
+    if (!fileInput.files.length) {
+        alert('Please select a file');
+        return;
+    }
+    
+    const loadingEl = document.getElementById('pdf-loading');
+    const button = document.getElementById('analyze-pdf-btn');
+    
+    loadingEl.style.display = 'block';
+    button.disabled = true;
+    button.innerHTML = '⏳ Uploading...';
+    
+    try {
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('pdf_file', file);
+        
+        const response = await fetch('/analyze/pdf', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || `HTTP ${response.status}`);
+        }
+        
+        displayResults(data);
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`Error: ${error.message}`);
+    } finally {
+        loadingEl.style.display = 'none';
+        button.disabled = false;
+        button.innerHTML = '📤 Upload & Analyze';
+    }
+});
+
+// Copy results function
+function copyResults() {
+    const container = document.getElementById('results-container');
+    const text = container.innerText;
+    
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-btn');
+        const original = btn.innerHTML;
+        btn.innerHTML = '✅ Copied!';
+        setTimeout(() => btn.innerHTML = original, 2000);
+    });
+}
+
+
+console.log("✅ All JavaScript loaded successfully");
+</script>
+
+{% endblock %}
