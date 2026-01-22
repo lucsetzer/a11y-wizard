@@ -1,0 +1,337 @@
+/* static/css/custom.css */
+:root {
+    --primary: #0cc0df;
+    --primary-dark: #0097b2;
+    --background: #1a1a2e; /* Dark blue/purple background */
+    --surface: #252547; /* Lighter surface for cards */
+    --text-primary: #ffffff;
+    --text-secondary: #e0e0e0;
+    --text-muted: #a0a0c0;
+}
+
+/* Override Pico dark theme colors */
+[data-theme="dark"],
+:root:not([data-theme="light"]) {
+    --background-color: var(--background) !important;
+    --color: var(--text-primary) !important;
+    --muted-color: var(--text-muted) !important;
+    --muted-border-color: #2d2d5a !important;
+    --form-element-background-color: #2a2a4a !important;
+    --form-element-color: var(--text-primary) !important;
+    --card-background-color: var(--surface) !important;
+    --card-border-color: #363663 !important;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 1rem;
+    line-height: 1.6;
+}
+
+/* Improve text contrast everywhere */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+}
+
+p, li, span, small, .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+a {
+    color: var(--primary) !important;
+}
+
+a:hover {
+    color: var(--primary-dark) !important;
+}
+
+/* Card styles for instructions */
+.instruction-card {
+    background: var(--surface);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-secondary);
+}
+
+.instruction-card:hover {
+    border-color: var(--primary);
+    background: rgba(12, 192, 223, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(12, 192, 223, 0.2);
+}
+
+.instruction-card h3 {
+    color: var(--text-primary) !important;
+    margin-top: 0;
+}
+
+.card-icon {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.step-number {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 36px;
+    margin-right: 0.75rem;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* Button styling - override Pico */
+button, 
+.button,
+[role="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: white !important;
+}
+
+button:hover, 
+.button:hover,
+[role="button"]:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+    color: white !important;
+}
+
+/* Outline buttons */
+.outline,
+button.outline,
+[role="button"].outline {
+    background-color: transparent !important;
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+.outline:hover,
+button.outline:hover,
+[role="button"].outline:hover {
+    background-color: rgba(12, 192, 223, 0.1) !important;
+    color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+}
+
+/* Navigation */
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+.logo:hover {
+    color: var(--primary-dark);
+}
+
+/* Articles/cards in the "Why Accessibility Matters" section */
+article {
+    background: var(--surface) !important;
+    border: 1px solid var(--card-border-color) !important;
+    color: var(--text-secondary) !important;
+}
+
+article h4 {
+    color: var(--primary) !important;
+}
+
+/* Form elements (for future use) */
+input, textarea, select {
+    background-color: var(--form-element-background-color) !important;
+    color: var(--text-primary) !important;
+    border-color: #3a3a6a !important;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(12, 192, 223, 0.25) !important;
+}
+
+/* Utility classes */
+.hidden {
+    display: none;
+}
+
+/* Footer */
+footer {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    color: var(--text-muted);
+}
+
+/* Improve contrast for all text */
+strong, b {
+    color: var(--text-primary);
+}
+
+code, pre {
+    background-color: #2a2a4a !important;
+    color: #b0b0ff !important;
+    border-color: #3a3a6a !important;
+}
+
+/* Make sure links in text are visible */
+a:not([role="button"]) {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* Add to custom.css */
+.results-summary {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.results-summary h3 {
+    margin-top: 0;
+    color: var(--primary) !important;
+}
+
+.issue-card {
+    transition: transform 0.2s ease;
+}
+
+.issue-card:hover {
+    transform: translateX(5px);
+}
+
+code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+pre {
+    background: rgba(0, 0, 0, 0.3) !important;
+    padding: 1rem !important;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+details {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+}
+
+details summary {
+    cursor: pointer;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+details summary:hover {
+    color: var(--primary-dark);
+}
+
+/* auDHD-friendly improvements */
+.issue-card {
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 6px solid;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.issue-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.issue-card h5 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.issue-card p {
+    margin: 0.75rem 0;
+    line-height: 1.6;
+}
+
+/* Make code blocks more readable */
+code {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Better focus states for auDHD */
+button:focus, 
+input:focus, 
+a:focus {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Clear visual hierarchy */
+h1, h2, h3, h4, h5 {
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+/* Spacing for readability */
+p, li, .instruction-card {
+    line-height: 1.7;
+}
+
+/* Progress bar styling */
+progress {
+    width: 100%;
+    height: 12px;
+    border-radius: 6px;
+    border: none;
+}
+
+progress::-webkit-progress-bar {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+}
+
+progress::-webkit-progress-value {
+    background-color: var(--primary);
+    border-radius: 6px;
+    transition: width 0.5s ease;
+}
