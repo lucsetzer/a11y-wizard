@@ -1,0 +1,26 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}A11y Wizard - Accessibility Grader{% endblock %}</title>
+    <!-- Original Pico.css -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <!-- Our custom styles -->
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/custom.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Simple footer -->
+    <footer class="container">
+        <small>Built with ❤️ for accessibility | A11y Wizard</small>
+    </footer>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>
